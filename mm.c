@@ -25,20 +25,20 @@
  * struct that follows.
  *
  * === User information ===
- * Group: 
- * User 1: 
- * SSN: X
+ * Group: The Memory Allogators 
+ * User 1: Hrafnkell Baldursson
+ * SSN: 3012932249
  * User 2: 
  * SSN: X
  * === End User Information ===
  ********************************************************/
 team_t team = {
     /* Group name */
-    "STY15_Forever",
+    "The Memory Allogators",
     /* First member's full name */
-    "Freysteinn Alfredsson",
+    "Hrafnkell Baldursson",
     /* First member's email address */
-    "freysteinn@ru.is",
+    "hrafnkell13@ru.is",
     /* Second member's full name (leave blank if none) */
     "",
     /* Second member's email address (leave blank if none) */
