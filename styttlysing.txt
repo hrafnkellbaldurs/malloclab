@@ -1,0 +1,260 @@
+pw: readahead
+
+File we will be editing: mm.c
+
+mdriver.c is a driver program that allows you to evaluate the performance of your solution. 
+
+Use "make" to generate the driver code and run it with "./mdriver -V"
+
+In the mm.c file there is a struct "team" which you should insert info about team members. Also fill in the comment above it with team information
+
+HANDIN:
+
+When lab is complete, hand in mm.c using "make handin VERSION=#". VERSION=0 for early access 1
+Also make sure to remove any calls to mm_check, it slows down the throughput.
+Only one person needs to hand in.
+Make sure code is commented.
+
+------------------------------------------------
+How to work on the lab:
+
+Your dynamc storage allocator will consist of the following four functions, which are declared in mm.h and defined in mm.c
+
+	int mm_init(void);
+	void *mm_malloc(size_t size);
+	void mm_free(void *ptr);
+	void *mm_realloc(void *ptr, size_t size);
+
+The given mm.c file implements the simplest functional malloc package. Modify these functions, (and possibly define other private static functions) so that they obey the following semantics:
+
+	mm init: 
+		Before calling mm malloc, mm realloc or mm free, the application program (i.e.,
+		the trace-driven driver program that you will use to evaluate your implementation) calls mm init to
+		perform any necessary initializations, such as allocating the initial heap area. The return value should be -1 if there was a problem in performing the
+		initialization, 0 otherwise.
+
+	mm malloc: 
+		The mm malloc routine returns a pointer to an allocated block payload of at least
+		"size" bytes. The entire allocated block should lie within the heap region and should not overlap with
+		any other allocated chunk.
+		We will compare your implementation to the version of malloc supplied in the standard C library
+		(libc). Since the libc malloc always returns payload pointers that are aligned to 8 bytes, your
+		malloc implementation should do likewise and always return 8-byte aligned pointers.
+
+	mm free: 
+		The mm free routine frees the block pointed to by ptr. It returns nothing. This routine
+		is only guaranteed to work when the passed pointer (ptr) was returned by an earlier call to
+		mm malloc or mm realloc and has not yet been freed.
+
+	mm realloc: 
+		The mm realloc routine returns a pointer to an allocated region of at least "size"
+		bytes with the following constraints.
+		– if ptr is NULL, the call is equivalent to mm malloc(size);
+		– if size is equal to zero, the call is equivalent to mm free(ptr);
+		– if ptr is not NULL, it must have been returned by an earlier call to mm malloc or mm realloc.
+		The call to mm realloc changes the size of the memory block pointed to by ptr (the old
+		block) to "size" bytes and returns the address of the new block. Notice that the address of the
+		new block might be the same as the old block, or it might be different, depending on your implementation,
+		the amount of internal fragmentation in the old block, and the size of the realloc
+		request.
+		The contents of the new block are the same as those of the old ptr block, up to the minimum of
+		the old and new sizes. Everything else is uninitialized. For example, if the old block is 8 bytes
+		and the new block is 12 bytes, then the first 8 bytes of the new block are identical to the first 8
+		bytes of the old block and the last 4 bytes are uninitialized. Similarly, if the old block is 8 bytes
+		and the new block is 4 bytes, then the contents of the new block are identical to the first 4 bytes
+		of the old block
+
+These semantics match the the semantics of the corresponding libc malloc, realloc, and free rou-routines.
+Type man malloc to the shell for complete documentation.
+
+
+---------------------------------------
+Heap Consistancy Checker:
+
+Dynamic memory allocators are hard to program correctly because they involde a lot of untyped pointer manipulation.
+You'll find it very helpful to write a heap checker that scans the heap and checks it for consistancy.
+
+Examples of what a heap checker might check are:
+
+	• Is every block in the free list marked as free?
+
+	• Are there any contiguous free blocks that somehow escaped coalescing?
+
+	• Is every free block actually in the free list?
+
+	• Do the pointers in the free list point to valid free blocks?
+
+	• Do any allocated blocks overlap?
+
+	• Do the pointers in a heap block point to valid heap addresses?
+
+Heap checker will consist of the function:
+
+		int mm_check(void): 
+			returns nonzero iff heap is consistent
+			else returns zero
+
+in mm.c. It will check any invariants or consistency conditions you consider prudent. 
+You're not limited to the listed suggestions nor are you required to check all of them. You are encouraged to print out error messages when mm_check fails.
+
+This consistancy checker is for your own debugging during development. When you submit mm.c make sure to remove any calls to mm_check as they will slow down your throughput. Style points will be given for your mm_check function.
+Make sure to put comments and document what you are checking.
+
+
+-------------------------------------------------
+Support Routines:
+
+The memlib.c package simulates the memory system for your dynamic memory allocator. 
+
+You can invoke the following functions in memlib.c:
+
+	• void *mem_sbrk(int incr): Expands the heap by "incr" bytes, where "incr" is a positive
+	non-zero integer and returns a generic pointer to the first byte of the newly allocated heap area. The
+	semantics are identical to the Unix sbrk function, except that mem_sbrk accepts only a positive
+	non-zero integer argument.
+
+	• void *mem_heap_lo(void): Returns a generic pointer to the first byte in the heap.
+
+	• void *mem_heap_hi(void): Returns a generic pointer to the last byte in the heap.
+
+	• size_t mem_heapsize(void): Returns the current size of the heap in bytes.
+
+	• size_t mem_pagesize(void): Returns the system’s page size in bytes (4K on Linux systems).
+
+
+--------------------------------------------
+The Trace-driven Driver Program:
+
+mdriver.c tests your mm.c package for correctness, space utilization and throughput. It's controlled by a set of trace files that are included in the handout. 
+Each trace file contains a sequence of allocate, reallocate, and free directions that instruct the driver to call your mm_malloc, mm_realloc and mm_free routines in some sequence. The same driver and trace files will be used in grading.
+
+mdriver.c accepts the following command line arguments:
+
+	• -t <tracedir>: Look for the default trace files in directory tracedir instead of the default
+	directory defined in config.h.
+
+	• -f <tracefile>: Use one particular tracefile for testing instead of the default set of trace-
+	files.
+
+	• -h: Print a summary of the command line arguments.
+	
+	• -l: Run and measure libc malloc in addition to the student’s malloc package.
+	
+	• -v: Verbose output. Print a performance breakdown for each tracefile in a compact table.
+	
+	• -V: More verbose output. Prints additional diagnostic information as each trace file is processed.
+	Useful during debugging for determining which trace file is causing your malloc package to fail.
+
+
+-------------------------------------------
+Programming Rules:
+
+	• You should not change any of the interfaces in mm.c.
+	
+	• You should not invoke any memory-management related library calls or system calls. This excludes
+	the use of malloc, calloc, free, realloc, sbrk, brk or any variants of these calls in your
+	code.
+	
+	• You are not allowed to define any global or static compound data structures such as arrays, structs,
+	trees, or lists in your mm.c program. However, you are allowed to declare global scalar variables such
+	as integers, floats, and pointers in mm.c.
+	
+	• For consistency with the libc malloc package, which returns blocks aligned on 8-byte boundaries,
+	your allocator must always return pointers that are aligned to 8-byte boundaries. The driver will
+	enforce this requirement for you
+
+
+----------------------------------
+Evaluation:
+
+Correctness(20 points): Full points if all traces work
+
+Performance(35 points): 
+	Space utilization: Peak ratio between the aggregate amount of memory used by the driver and the size of the heap used by your allocator. Optimal ratio = 1
+
+	Throughput: Avg n. ops completed per second
+
+Style(10 points):
+
+	– Your code should be decomposed into functions and use as few global variables as possible.
+
+	– Your code should begin with a header comment that describes the structure of your free and
+	allocated blocks, the organization of the free list, and how your allocator manipulates the free
+	list. each function should be preceeded by a header comment that describes what the function
+	does.
+
+	– Each subroutine should have a header comment that describes what it does and how it does it.
+	
+	– Your heap consistency checker mm check should be thorough and well-documented
+
+	You will be awarded 5 points for a good heap consistency checker and 5 points for good program
+	structure and comments.
+
+--------------------------------------
+Hints:
+
+	• Use the mdriver -f option. During initial development, using tiny trace files will simplify debugging
+	and testing. We have included two such trace files (short1,2-bal.rep) that you can use for
+	initial debugging.
+	
+	• Start designing your implementation on paper before you start working on malloclab. Many people
+	start coding before they understand what they are really trying to do. You must have a solid idea
+	before you start writing your code or you will find yourself with impossible scenarios where your
+	problems are self-made and impossible to solve.
+	
+	• Create your own small trace files. When you have decided on your malloc implementation, then you
+	should create small trace files that test each edge case in your implementation. It will be much simpler
+	for you to expose bugs with these test cases then using the full traces given with the handout. If you
+	find a bug using the full traces, then you should try to create new small traces because you must have
+	missed an edge case.
+
+	• Do not make assumptions about what is working in your code. Many problems are the result of
+	the programmers making assumptions about their code. Print out the contents of your variables and
+	pointers, do not assume that they contain the correct data. Use tools to verify that everything is
+	working correctly, never assume anything about your code.
+	
+	• Write your code in baby steps. Write once function at the time and make sure that it works. Write
+	each part so that you can either test each part using your trace files, or by creating a small separate
+	program that verifies your code snippet.
+	
+	• Use the mdriver -v and -V options. The -v option will give you a detailed summary for each
+	trace file. The -V will also indicate when each trace file is read, which will help you isolate errors.
+	
+	• Compile with gcc -g and use a debugger. A debugger will help you isolate and identify out of
+	bounds memory references.
+	
+	• Understand every line of the malloc implementation in the textbook. The textbook has a detailed
+	example of a simple allocator based on an implicit free list. Use this is a point of departure. Don’t
+	start working on your allocator until you understand everything about the simple implicit list allocator.
+	
+	• Encapsulate your pointer arithmetic in C preprocessor macros. Pointer arithmetic in memory managers
+	is confusing and error-prone because of all the casting that is necessary. You can reduce the
+	complexity significantly by writing macros for your pointer operations. See the text for examples.
+	
+	• Do your implementation in stages. The first 9 traces contain requests to malloc and free. The
+	last 2 traces contain requests for realloc, malloc, and free. We recommend that you start
+	by getting your malloc and free routines working correctly and efficiently on the first 9 traces.
+	Only then should you turn your attention to the realloc implementation. The second half of your
+	password is the phrase ahead. For starters, build realloc on top of your existing malloc and
+	free implementations. But to get really good performance, you will need to build a stand-alone
+	realloc.
+
+	• Use a profiler. You may find the gprof tool helpful for optimizing performance.
+	
+	• Use a memory profiler. You will find the valgrind tool helpful for many pointer problems that
+	crash your program.
+	
+	• Use a revision control program if you know how to use one. On Skel there are multiple revision
+	control programs such as Bazaar, Git, Mercurial, and Subversion. Git is an excellent revision control
+	system and you can create a private repository at https://bitbucket.org. Please keep in mind that you
+	are not allowed to create public repositories that are available to all on the Internet.
+	
+	• Start early! It is possible to write an efficient malloc package with a few pages of code. However, we
+	can guarantee that it will be some of the most difficult and sophisticated code you have written so far
+	in your career. So start early (note that you’ll get extra credit for it!), and good luck!
+	
+	• Have fun!. Seriously, this is an amazing lab and there is no reason for you not to have fun while
+	working on it.
+
+
+
