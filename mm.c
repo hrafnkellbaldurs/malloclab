@@ -56,13 +56,29 @@ team_t team = {
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
 
 
-#define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
+#define SIZE_T_SIZE (ALIGN(sizeof(size_t)))i
+
+/* Internal helper routine prototypes */
+static void printblock(void *blockptr);
 
 /* 
  * mm_init - initialize the malloc package.
  */
 int mm_init(void)
 {
+    /*
+    
+    bool problem = false;
+    	
+    allocate inital heap area
+
+    if(initializing fails)
+    {
+	return -1;
+    }
+    
+   */
+
     return 0;
 }
 
@@ -86,7 +102,12 @@ void *mm_malloc(size_t size)
  * mm_free - Freeing a block does nothing.
  */
 void mm_free(void *ptr)
-{
+{ 
+   /*
+   free the block pointed to by prt, something like this:
+   free_block(ptr)
+ 
+  */
 }
 
 /*
@@ -99,7 +120,19 @@ void *mm_realloc(void *ptr, size_t size)
     size_t copySize;
     
     newptr = mm_malloc(size);
-    if (newptr == NULL)
+
+    /*	
+    //if ptr is null, the call is equivalent to mm_malloc(size), NULL
+    if(ptr == NULL)
+      return mm_malloc(size);
+    //if ptr is not NULL, it must have been returned by an earlier call to mm    _malloc or mm_realloc
+       
+    //if size is equal to zero, the call is equivalent to mm_free(ptr)
+    if(size == 0)
+      return mm_free(ptr);
+    */
+
+    if (newptr == NULL) 
         return NULL;
     copySize = *(size_t *)((char *)oldptr - SIZE_T_SIZE);
     if (size < copySize)
@@ -107,4 +140,11 @@ void *mm_realloc(void *ptr, size_t size)
     memcpy(newptr, oldptr, copySize);
     mm_free(oldptr);
     return newptr;
+}
+
+/* Internal helper routines */
+
+static void printblock(void *blockptr)
+{ 
+   printf("%p: ", blockptr); 
 }
