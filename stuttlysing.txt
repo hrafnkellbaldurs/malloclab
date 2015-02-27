@@ -49,9 +49,13 @@ The given mm.c file implements the simplest functional malloc package. Modify th
 	mm realloc: 
 		The mm realloc routine returns a pointer to an allocated region of at least "size"
 		bytes with the following constraints.
+
 		– if ptr is NULL, the call is equivalent to mm malloc(size);
+		
 		– if size is equal to zero, the call is equivalent to mm free(ptr);
+		
 		– if ptr is not NULL, it must have been returned by an earlier call to mm malloc or mm realloc.
+		
 		The call to mm realloc changes the size of the memory block pointed to by ptr (the old
 		block) to "size" bytes and returns the address of the new block. Notice that the address of the
 		new block might be the same as the old block, or it might be different, depending on your implementation,
@@ -256,5 +260,4 @@ Hints:
 	• Have fun!. Seriously, this is an amazing lab and there is no reason for you not to have fun while
 	working on it.
 
-
-
+ 
