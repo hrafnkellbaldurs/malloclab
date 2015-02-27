@@ -25,8 +25,8 @@
  * struct that follows.
  *
  * === User information ===
- * Group: The Memory Allogators 
- * User 1: Hrafnkell Baldursson
+ * Group: The Memory Allogators
+ * User 1: hrafnkell13
  * SSN: 3012932249
  * User 2: 
  * SSN: X
@@ -104,6 +104,7 @@ void *mm_malloc(size_t size)
 void mm_free(void *ptr)
 { 
    /*
+ 
    free the block pointed to by prt, something like this:
    free_block(ptr)
  
