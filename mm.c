@@ -28,8 +28,8 @@
  * Group: The Memory Allogators
  * User 1: hrafnkell13
  * SSN: 3012932249
- * User 2: 
- * SSN: X
+ * User 2: arnara13
+ * SSN: 0608893339
  * === End User Information ===
  ********************************************************/
 team_t team = {
@@ -40,9 +40,9 @@ team_t team = {
     /* First member's email address */
     "hrafnkell13@ru.is",
     /* Second member's full name (leave blank if none) */
-    "",
+    "Arnar Dori Asgeirsson",
     /* Second member's email address (leave blank if none) */
-    "",
+    "arnara13@ru.is",
     /* Leave blank */
     "",
     /* Leave blank */
