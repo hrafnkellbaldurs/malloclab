@@ -25,7 +25,7 @@
  * struct that follows.
  *
  * === User information ===
- * Group: The Memory Allogators
+ * Group: The_Memory_Allogators
  * User 1: hrafnkell13
  * SSN: 3012932249
  * User 2: arnara13
