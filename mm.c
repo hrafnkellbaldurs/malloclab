@@ -12,7 +12,10 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+
+#define NDEBUG //ignores assert calls
 #include <assert.h>
+
 #include <unistd.h>
 #include <string.h>
 #include "mm.h"
