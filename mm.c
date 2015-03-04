@@ -56,7 +56,7 @@ team_t team = {
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
 
 
-#define SIZE_T_SIZE (ALIGN(sizeof(size_t)))i
+#define SIZE_T_SIZE (ALIGN(sizeof(size_t))) //var i tarna
 
 /* Internal helper routine prototypes */
 static void printblock(void *blockptr);
