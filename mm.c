@@ -12,10 +12,12 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+
+#define NDEBUG //ignores assert calls
 #include <assert.h>
+
 #include <unistd.h>
 #include <string.h>
-
 #include "mm.h"
 #include "memlib.h"
 
@@ -55,8 +57,8 @@ team_t team = {
 /* rounds up to the nearest multiple of ALIGNMENT */
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
 
+#define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
-#define SIZE_T_SIZE (ALIGN(sizeof(size_t))) //var i tarna
 
 /* Internal helper routine prototypes */
 static void printblock(void *blockptr);
