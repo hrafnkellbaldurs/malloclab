@@ -1,10 +1,30 @@
-/*in this naive approach, a block is allocated by simply incrementing
- * the brk pointer.  A block is pure payload. There are no headers or
- * footers.  Blocks are never coalesced or reused. Realloc is
- * implemented directly using mm_malloc and mm_free.
- *
- * In this explicit list implementation, we will use a doubly linked list
- */
+/*
+*  We'll be using an explicit free list implementation with a 
+*  doubly linked list traversal through the free list. The free
+*  block scanning alghorithm will be Best Fit.
+*
+*  Malloc:
+*	 We use the Best Fit alghorithm to find a fitting free block 
+*	 of the least size possible
+*  Free:
+*	 We'll be clearing the payload for the allocated block 
+*	 requested to be freed. Then we mark the block as free and 
+*	 perform coalescing. 
+*	 To make the most of the free blocks, we will be using 
+*	 immediate coalescing to take care of external fragmentation 
+*	 that may occur. Two pointers to the beginning and end of the 
+*	 free list are maintained throughout
+*
+*  How our blocks will look like:
+*
+*  Free block:        HEADER | FOOTER
+*  Allocated block:   HEADER |----PAYLOAD-----| FOOTER
+*
+*  In the header and footer: 
+*  8 bit word containing the size of the block, allocated flag 
+*  bit,  next block and previous block pointers.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
