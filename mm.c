@@ -1,14 +1,9 @@
-/*
- * mm-naive.c - The fastest, least memory-efficient malloc package.
- * 
- * In this naive approach, a block is allocated by simply incrementing
+/*in this naive approach, a block is allocated by simply incrementing
  * the brk pointer.  A block is pure payload. There are no headers or
  * footers.  Blocks are never coalesced or reused. Realloc is
  * implemented directly using mm_malloc and mm_free.
  *
- * NOTE TO STUDENTS: Replace this header comment with your own header
- * comment that gives a high level description of your solution.
- *
+ * In this explicit list implementation, we will use a doubly linked list
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,32 +54,51 @@ team_t team = {
 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
+#define BLK_HDR_SIZE ALIGN(sizeof(block_hdr))
+
+#ifdef DEBUG
+#define CHECKHEAP(verbose) printf("%s\n", __func__); mm_checkheap(verbose);
+#endif
+
+typedef struct header block_hdr;
+
+// header for doubly linked list
+struct header {
+        size_t size;
+        block_hdr *next_p;
+        block_hdr *prev_p;
+};
+
 
 /* Internal helper routine prototypes */
-static void printblock(void *blockptr);
+//static void printblock(void *blockptr);
+void print_heap();
+void mm_checkheap(char flag);
 
-/* 
+/*
  * mm_init - initialize the malloc package.
  */
 int mm_init(void)
 {
+  //núllstilla breytur
+
     /*
-    
+
     bool problem = false;
-    	
+
     allocate inital heap area
 
     if(initializing fails)
     {
-	return -1;
+        return -1;
     }
-    
+
    */
 
     return 0;
 }
 
-/* 
+/*
  * mm_malloc - Allocate a block by incrementing the brk pointer.
  *     Always allocate a block whose size is a multiple of the alignment.
  */
@@ -104,12 +118,12 @@ void *mm_malloc(size_t size)
  * mm_free - Freeing a block does nothing.
  */
 void mm_free(void *ptr)
-{ 
+{
    /*
- 
+
    free the block pointed to by prt, something like this:
    free_block(ptr)
- 
+
   */
 }
 
@@ -121,21 +135,21 @@ void *mm_realloc(void *ptr, size_t size)
     void *oldptr = ptr;
     void *newptr;
     size_t copySize;
-    
+
     newptr = mm_malloc(size);
 
-    /*	
+    /*
     //if ptr is null, the call is equivalent to mm_malloc(size), NULL
     if(ptr == NULL)
       return mm_malloc(size);
     //if ptr is not NULL, it must have been returned by an earlier call to mm    _malloc or mm_realloc
-       
+
     //if size is equal to zero, the call is equivalent to mm_free(ptr)
     if(size == 0)
       return mm_free(ptr);
     */
 
-    if (newptr == NULL) 
+    if (newptr == NULL)
         return NULL;
     copySize = *(size_t *)((char *)oldptr - SIZE_T_SIZE);
     if (size < copySize)
@@ -147,7 +161,19 @@ void *mm_realloc(void *ptr, size_t size)
 
 /* Internal helper routines */
 
-static void printblock(void *blockptr)
-{ 
-   printf("%p: ", blockptr); 
+
+void mm_checkheap(char flag){
+    
 }
+
+/* from the beginning of the heap to the end, print each block and its information */
+void print_heap(){
+   
+}
+
+
+//static void printblock(void *blockptr)
+//{
+//   printf("%p: ", blockptr);
+//}
+
