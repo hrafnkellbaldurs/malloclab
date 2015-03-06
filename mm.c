@@ -17,12 +17,12 @@
 *
 *  How our blocks will look like:
 *
-*  Free block:        HEADER | FOOTER
-*  Allocated block:   HEADER |----PAYLOAD-----| FOOTER
+*  Free block:        HEADER |  |PREV *| NEXT*|  | FOOTER
+*  Allocated block:   HEADER | ----PAYLOAD-----  | FOOTER
 *
 *  In the header and footer: 
 *  8 bit word containing the size of the block, allocated flag 
-*  bit,  next block and previous block pointers.
+*  bit.
 */
 
 #include <stdio.h>
