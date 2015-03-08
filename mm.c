@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NDEBUG //ignores assert calls
+//#define NDEBUG //ignores assert calls
 #include <assert.h>
 
 #include <unistd.h>
@@ -69,6 +69,9 @@ team_t team = {
 /* single word (4) or double word (8) alignment */
 #define ALIGNMENT 8
 
+/* pointer casting maicros */
+#define GEN_P(bp) (void *)(bp)
+
 /* rounds up to the nearest multiple of ALIGNMENT */
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
 
@@ -76,9 +79,9 @@ team_t team = {
 
 #define BLK_HDR_SIZE ALIGN(sizeof(block_hdr))
 
-#ifdef DEBUG
-#define CHECKHEAP(verbose) printf("%s\n", __func__); mm_checkheap(verbose);
-#endif
+//#ifdef DEBUG
+#define CHECK(verbose) printf("%s\n", __func__); mm_check(verbose);
+//#endif
 
 typedef struct header block_hdr;
 
@@ -92,28 +95,33 @@ struct header {
 
 /* Internal helper routine prototypes */
 //static void printblock(void *blockptr);
-void print_heap();
-void mm_checkheap(char flag);
+static void *find_fit(size_t size);
+static void *coalesce(void *bp);
+static int mm_check(char flag);
+static void print_heap();
+
 
 /*
  * mm_init - initialize the malloc package.
  */
 int mm_init(void)
-{
-  //núllstilla breytur
+{   
+  //expands the heap by 24 bytes, or the size of block_hdr
+  //and makes our first block point to the first byte of 
+  //the allocated heap area
+  block_hdr *bp = mem_sbrk(BLK_HDR_SIZE);
+  bp->size = BLK_HDR_SIZE;
+  bp->next_p = NULL;
+  bp->prev_p = NULL;
 
-    /*
+  //delete this later
+  //bp->size = bp->size | 1; //sets it as allocated
 
-    bool problem = false;
+  CHECK(0);
 
-    allocate inital heap area
-
-    if(initializing fails)
-    {
-        return -1;
-    }
-
-   */
+  //if our initial block goes past the heap, we have a problem
+  if(GEN_P(bp) > mem_heap_hi())
+	return -1;
 
     return 0;
 }
@@ -124,6 +132,10 @@ int mm_init(void)
  */
 void *mm_malloc(size_t size)
 {
+   //we need the struct size plus the actual info
+   //TODO: eliminating header struct in allocated blocks
+   //int newsize = ALIGN(BLK_HDR_SIZE + size);   
+
     int newsize = ALIGN(size + SIZE_T_SIZE);
     void *p = mem_sbrk(newsize);
     if (p == (void *)-1)
@@ -131,16 +143,20 @@ void *mm_malloc(size_t size)
     else {
         *(size_t *)p = size;
         return (void *)((char *)p + SIZE_T_SIZE);
-    }
+    } 
+
 }
 
 /*
  * mm_free - Freeing a block does nothing.
  */
 void mm_free(void *ptr)
-{
-   /*
-
+{ 
+   //bullshit code to ignore warnings
+   block_hdr *bp = coalesce(ptr);
+   bp = find_fit(BLK_HDR_SIZE);
+   
+/*
    free the block pointed to by prt, something like this:
    free_block(ptr)
 
@@ -179,17 +195,66 @@ void *mm_realloc(void *ptr, size_t size)
     return newptr;
 }
 
+
 /* Internal helper routines */
 
+//find the next fitting free block for allocation
+static void *find_fit(size_t size){
+	return NULL;
+}
 
-void mm_checkheap(char flag){
-    
+//bind together two free blocks into one
+static void *coalesce(void *bp){
+	return NULL;
+}
+
+//checks the heap for inconsistancy
+static int mm_check(char flag){
+	/*
+	Examples of what a heap checker might check are:
+
+	Is every block in the free list marked as free?
+
+	Are there any contiguous free blocks that somehow escaped coalescing?
+
+	Is every free block actually in the free list?
+
+	Do the pointers in the free list point to valid free blocks?
+
+	Do any allocated blocks overlap?
+
+	Do the pointers in a heap block point to valid heap addresses?
+	
+	returns nonzero iff heap is consistent
+			else returns zero
+	*/
+	
+	// print heap and dont check too much
+	if(flag == 0){
+		print_heap();
+	} 
+	else if(flag == 1){
+	 // be verbose
+
+	}
+
+	return 0;
 }
 
 /* from the beginning of the heap to the end, print each block and its information */
-void print_heap(){
-   
+static void print_heap(){
+	block_hdr *bp = mem_heap_lo();
+	//taking advantage of the size, we can iterate through the blocks
+	while(bp < (block_hdr *)mem_heap_hi()){
+		printf("%s block at %p, size %d\n", 
+		 	(bp->size&1)?"allocated":"free",
+			 bp,
+			 (int)(bp->size & ~1));
+		bp = (block_hdr *)(char *)bp + (bp->size & ~1);
+		//the ~1 is so we dont get the a bit with the size
+	}   
 }
+
 
 
 //static void printblock(void *blockptr)
