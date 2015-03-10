@@ -21,8 +21,18 @@
 *  Allocated block:   HEADER | ----PAYLOAD-----  | FOOTER
 *
 *  In the header and footer: 
-*  8 bit word containing the size of the block, allocated flag 
-*  bit.
+*  8 byte word containing the size of the block, allocated flag 
+*  bit and reallocated flag bit
+*
+*  Looks like this:
+*
+*   31                     3  2  1  0 
+*   -----------------------------------
+*  | s  s  s  s  ... s  s  s  0  r  a/f
+*   -----------------------------------
+*
+*   r is set iff the block has bees reallocated.
+*   a/f is set iff the block is allocated 
 */
 
 #include <stdio.h>
@@ -75,9 +85,21 @@ team_t team = {
 /* rounds up to the nearest multiple of ALIGNMENT */
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
 
+/* rounds up to the size of a size_t to the nearest multiple of ALIGNMENT */
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
+/* round up to the size of a block_hdr(12 bytes)  */
 #define BLK_HDR_SIZE ALIGN(sizeof(block_hdr))
+
+/* read and write a word at address p */
+#define GET(p)       (*(size_t *)(p))
+#define PUT(p, val)  (*(size_t *)(p) = (val))
+
+#define GET_SIZE(p)  (p->size) //(GET(p) & ~0x7)
+//#define GET_ALLOC(p)  (GET(p) & 0x1) SKIL EKKI
+
+/* given a header pointer bp, compute address of footer */
+#define FTRP(bp)  ((char *)(bp) + ALIGN) //UNDER CONSTRUCTION
 
 //#ifdef DEBUG
 #define CHECK(verbose) printf("%s\n", __func__); mm_check(verbose);
@@ -106,13 +128,15 @@ static void print_heap();
  */
 int mm_init(void)
 {   
-  //expands the heap by 24 bytes, or the size of block_hdr
+  //expands the heap by 24 bytes, or the size of block_hdr + footer
   //and makes our first block point to the first byte of 
   //the allocated heap area
-  block_hdr *bp = mem_sbrk(BLK_HDR_SIZE);
-  bp->size = BLK_HDR_SIZE;
+  block_hdr *bp = mem_sbrk(BLK_HDR_SIZE + ALIGNMENT);
+  bp->size = BLK_HDR_SIZE + ALIGNMENT;
   bp->next_p = NULL;
   bp->prev_p = NULL;
+
+  //TODO: SET SIZE OF BLOCK TO FOOTER
 
   //delete this later
   //bp->size = bp->size | 1; //sets it as allocated
