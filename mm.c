@@ -46,6 +46,8 @@
 #include "mm.h"
 #include "memlib.h"
 
+extern int verbose;
+
 /*********************************************************
  * NOTE TO STUDENTS: Before you do anything else, please
  * provide your team information in below _AND_ in the
@@ -82,6 +84,9 @@ team_t team = {
 /* pointer casting maicros */
 #define GEN_P(bp) (void *)(bp)
 
+/* combine size and allocated flag bit into a 4 byte size_t */
+#define PACK(size, alloc) ((size) | (alloc))
+
 /* rounds up to the nearest multiple of ALIGNMENT */
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
 
@@ -101,9 +106,13 @@ team_t team = {
 /* given a header pointer bp, compute address of footer */
 #define FTRP(bp)  ((char *)(bp) + ALIGN) //UNDER CONSTRUCTION
 
-//#ifdef DEBUG
-#define CHECK(verbose) printf("%s\n", __func__); mm_check(verbose);
-//#endif
+#define DEBUG
+
+#define CHECK_HEAP(verbose) printf("%s\n", __func__); mm_checkheap(verbose);
+
+#ifdef DEBUG
+#define CHECK CHECK_HEAP(verbose)
+#endif
 
 typedef struct header block_hdr;
 
@@ -119,7 +128,7 @@ struct header {
 //static void printblock(void *blockptr);
 static void *find_fit(size_t size);
 static void *coalesce(void *bp);
-static int mm_check(char flag);
+static int mm_checkheap(int verbose);
 static void print_heap();
 
 
@@ -128,7 +137,7 @@ static void print_heap();
  */
 int mm_init(void)
 {   
-  //expands the heap by 24 bytes, or the size of block_hdr + footer
+  //expands the heap by 16 bytes, or the size of block_hdr + footer
   //and makes our first block point to the first byte of 
   //the allocated heap area
   block_hdr *bp = mem_sbrk(BLK_HDR_SIZE + ALIGNMENT);
@@ -141,7 +150,7 @@ int mm_init(void)
   //delete this later
   //bp->size = bp->size | 1; //sets it as allocated
 
-  CHECK(0);
+  CHECK;
 
   //if our initial block goes past the heap, we have a problem
   if(GEN_P(bp) > mem_heap_hi())
@@ -233,7 +242,7 @@ static void *coalesce(void *bp){
 }
 
 //checks the heap for inconsistancy
-static int mm_check(char flag){
+static int mm_checkheap(int verbose){
 	/*
 	Examples of what a heap checker might check are:
 
@@ -254,12 +263,14 @@ static int mm_check(char flag){
 	*/
 	
 	// print heap and dont check too much
-	if(flag == 0){
+	if(verbose == 0){
 		print_heap();
 	} 
-	else if(flag == 1){
+	else if(verbose == 1){
 	 // be verbose
-
+	}
+	else if(verbose == 2) {
+	//be even more verbose
 	}
 
 	return 0;
