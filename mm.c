@@ -119,16 +119,6 @@ team_t team = {
 /* Given block ptr bp, compute address of next and previous blocks */
 #define NEXT_BLKP(bp)  ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE)))
 #define PREV_BLKP(bp)  ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE)))
-
-
-//#define DEBUG //comment out if not debugging
-
-#define CHECK_HEAP(verbose) printf("%s\n", __func__); mm_checkheap(verbose);
-
-#ifdef DEBUG
-#define CHECK CHECK_HEAP(verbose)
-#endif
-
 /* $end mallocmacros */
 
 /* Global variables */
@@ -141,6 +131,15 @@ static void *find_fit(size_t asize);
 static void *coalesce(void *bp);
 static void printblock(void *bp); 
 static void checkblock(void *bp);
+void mm_checkheap(int verbose);
+
+
+#define DEBUG //comment out if not debugging
+
+#ifdef DEBUG
+#define CHECK_HEAP printf("%s\n", __func__); mm_checkheap(verbose);
+#endif
+
 
 /* 
  * mm_init - Initialize the memory manager 
@@ -195,6 +194,9 @@ void *mm_malloc(size_t size)
     if ((bp = extend_heap(extendsize/WSIZE)) == NULL)
         return NULL;
     place(bp, asize);
+
+    CHECK_HEAP;
+
     return bp;
 } 
 /* $end mmmalloc */
@@ -241,6 +243,8 @@ void mm_checkheap(int verbose)
 {
     char *bp = heap_listp;
 
+    if(verbose == 2)
+        printf("Debug2: More info\n");
     if (verbose)
         printf("Heap (%p):\n", heap_listp);
 
