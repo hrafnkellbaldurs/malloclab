@@ -122,7 +122,8 @@ team_t team = {
 /* $end mallocmacros */
 
 /* Global variables */
-static char *heap_listp;  /* pointer to first block */  
+static char *heap_listp;  /* pointer to first block */
+static char *free_listp;  /* pointer to the first free block */  
 
 /* function prototypes for internal helper routines */
 static void *extend_heap(size_t words);
@@ -157,7 +158,7 @@ int mm_init(void)
     heap_listp += DSIZE;
 
     /* Extend the empty heap with a free block of CHUNKSIZE bytes */
-    if (extend_heap(CHUNKSIZE/WSIZE) == NULL)
+    if ((free_listp = (char *)(extend_heap(CHUNKSIZE/WSIZE))) == NULL)
         return -1;
     return 0;
 }
@@ -177,15 +178,19 @@ void *mm_malloc(size_t size)
     if (size <= 0)
         return NULL;
 
-    /* Adjust block size to include overhead and alignment reqs. */
+
+    asize = ALIGN(size) + OVERHEAD;
+    
+    /* Adjust block size to include overhead and alignment reqs. 
     if (size <= DSIZE)
         asize = DSIZE + OVERHEAD;
     else
-        asize = DSIZE * ((size + (OVERHEAD) + (DSIZE-1)) / DSIZE);
+        asize = DSIZE * ((size + (OVERHEAD) + (DSIZE-1)) / DSIZE); */ 
     
     /* Search the free list for a fit */
     if ((bp = find_fit(asize)) != NULL) {
         place(bp, asize);
+ 	CHECK_HEAP;
         return bp;
     }
 
